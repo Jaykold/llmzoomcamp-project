@@ -1,0 +1,12 @@
+datasets
+fastapi
+fastembed
+groq
+numpy
+pandas
+python-dotenv
+qdrant-client
+ruff
+SQLAlchemy
+streamlit
+uvicorn
