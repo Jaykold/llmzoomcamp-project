@@ -1,9 +1,7 @@
-import json
 import uuid
 
 import pandas as pd
 from datasets import load_dataset
-from fastembed import TextEmbedding
 from qdrant_client import QdrantClient, models
 
 from utils import clean_data
