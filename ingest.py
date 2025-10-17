@@ -14,11 +14,12 @@ EMBEDDING_DIM = 512
 client = QdrantClient("http://localhost", port=6333)
 
 
-def load_data() -> list[dict]:
-    n = 600
+def load_data(n: int = 600) -> list[dict]:
     full_data = load_dataset("squad_v2", split="train")
-    shuffled_data = full_data.shuffle(seed=42).select(range(n))
-    data = pd.DataFrame(shuffled_data)
+    shuffled_data = full_data.shuffle(seed=42)
+    data_df = pd.DataFrame(shuffled_data)
+
+    data = data_df.head(n)
 
     return data.to_dict(orient="records")
 
