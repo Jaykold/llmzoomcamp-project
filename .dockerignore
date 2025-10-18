@@ -1,0 +1,8 @@
+# DO NOT REMOVE THE LINE BELOW.
+# It prevents unnecessary files from being sent to Docker.
+*
+
+# Allow only the essential files
+!app/
+!pyproject.toml
+!uv.lock
