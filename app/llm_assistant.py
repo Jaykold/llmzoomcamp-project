@@ -1,4 +1,6 @@
 import os
+import time
+from typing import Dict, List, Tuple
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -17,7 +19,10 @@ sparse_model = "Qdrant/bm25"
 collection_name = "squad_rag"
 
 
-def rrf_search(query: str, limit: int = 1) -> list[models.ScoredPoint]:
+def rrf_search(query: str, limit: int = 2):
+    """Perform retrieval and capture timing metrics"""
+    start_time = time.time()
+
     results = qdrant_client.query_points(
         collection_name=collection_name,
         prefetch=[
@@ -38,7 +43,14 @@ def rrf_search(query: str, limit: int = 1) -> list[models.ScoredPoint]:
         limit=limit,
     )
 
-    return results.points
+    end_time = time.time()
+    retrieval_time_ms = int((end_time - start_time) * 1000)
+
+    return {
+        "points": results.points,
+        "retrieval_time_ms": retrieval_time_ms,
+        "retrieved_docs_count": len(results.points),
+    }
 
 
 def build_prompt(query, search_results: models.ScoredPoint) -> str:
@@ -71,26 +83,62 @@ def build_prompt(query, search_results: models.ScoredPoint) -> str:
     return prompt
 
 
-def llm_response(prompt, model: str = "openai/gpt-oss-20b") -> str:
+def llm_response(prompt, model: str = "openai/gpt-oss-20b"):
+    """Generate LLM response and capture metrics"""
+    start_time = time.time()
+
     client = Groq(api_key=groq_api_key)
     response = client.chat.completions.create(messages=prompt, model=model)
 
-    return response.choices[0].message.content
+    end_time = time.time()
+    generation_time_ms = int((end_time - start_time) * 1000)
+
+    # Extract metrics from response
+    usage = response.usage
+
+    return {
+        "content": response.choices[0].message.content,
+        "metrics": {
+            "total_tokens": usage.total_tokens,
+            "generation_time_ms": generation_time_ms,
+            "model_used": model,
+        },
+    }
 
 
 def rag(query):
-    search_results = rrf_search(query)
-    prompt = build_prompt(query, search_results)
-    answer = llm_response(prompt)
+    """Complete RAG pipeline with comprehensive metrics"""
+    start_time = time.time()
 
-    return answer
+    # Retrieval phase
+    search_results = rrf_search(query)
+
+    # Generation phase
+    prompt = build_prompt(query, search_results["points"])
+    llm_result = llm_response(prompt)
+
+    end_time = time.time()
+    total_time_ms = int((end_time - start_time) * 1000)
+
+    return {
+        "answer": llm_result["content"],
+        "metrics": {
+            **llm_result["metrics"],
+            "retrieval_time_ms": search_results["retrieval_time_ms"],
+            "total_time_ms": total_time_ms,
+            "retrieved_docs_count": search_results["retrieved_docs_count"],
+            "qdrant_collection": collection_name,
+        },
+    }
 
 
 def main():
-    question = "What provides critical support for drug discovery and the availability of economic resources?"
-    print("This is groq api key", qdrant_host)
-    answer = rag(question)
-    print(f"Question: {question}\nAnswer: {answer}")
+    question = "Which letters remain distinct?"
+    print("Testing RAG system...")
+    result = rag(question)
+    print(f"Question: {question}")
+    print(f"Answer: {result['answer']}")
+    print(f"Metrics: {result['metrics']}")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS answers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     question_id UUID REFERENCES questions(id),
     answer_text TEXT NOT NULL,
-    context_used TEXT,
     model_used VARCHAR(100) DEFAULT 'groq-llama',
     confidence_score FLOAT,
     retrieval_time_ms INTEGER,
@@ -22,6 +21,7 @@ CREATE TABLE IF NOT EXISTS answers (
     total_time_ms INTEGER,
     qdrant_collection VARCHAR(100) DEFAULT 'squad_v2',
     retrieved_docs_count INTEGER DEFAULT 5,
+    total_tokens INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
