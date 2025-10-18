@@ -25,5 +25,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "notebook>=7.4.7",
+    "pgcli>=4.3.0",
     "ruff>=0.14.0",
 ]
