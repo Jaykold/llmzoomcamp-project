@@ -3,4 +3,3 @@
 *.pyc
 __pycache__/
 data/squad_v2.csv
-*.lock
