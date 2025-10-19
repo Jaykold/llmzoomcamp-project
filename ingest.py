@@ -6,7 +6,7 @@ from qdrant_client import QdrantClient, models
 
 from utils import clean_data
 
-DENSE_MODEL = "jinaai/jina-embeddings-v2-small_en"
+DENSE_MODEL = "jinaai/jina-embeddings-v2-small-en"
 SPARSE_MODEL = "Qdrant/bm25"
 COLLECTION_NAME = "squad_v2"
 EMBEDDING_DIM = 512
@@ -14,7 +14,7 @@ EMBEDDING_DIM = 512
 client = QdrantClient("http://localhost", port=6333)
 
 
-def load_data(n: int = 600) -> list[dict]:
+def load_data(n: int = 1000) -> list[dict]:
     full_data = load_dataset("squad_v2", split="train")
     shuffled_data = full_data.shuffle(seed=42)
     data_df = pd.DataFrame(shuffled_data)
@@ -32,15 +32,19 @@ def prepare_data(data: list[dict]) -> list[dict]:
     for doc in cleaned_data:
         embedding_text = f"Question: {doc['question']} Context: {doc['context']}"
 
+        answer = ""
+        if doc["answers"]["text"] and len(doc["answers"]["text"]) > 0:
+            answer = doc["answers"]["text"][0].replace('"', "")
+
         embedding_documents.append(
             {
                 "text": embedding_text,
                 "metadata": {
                     "title": doc["title"],
-                    "context": doc["context"],
-                    "question": doc["question"],
-                    "answer": doc["answer"],
-                    "has_answer": bool(doc["answers"]),
+                    "context": doc["context"].replace("\n", " "),
+                    "question": doc["question"].replace("\n", " "),
+                    "answer": answer,
+                    "has_answer": bool(answer),
                 },
             }
         )
@@ -65,7 +69,7 @@ def create_embeddings(documents: list[dict]) -> list[dict]:
         point = models.PointStruct(
             id=uuid.uuid4().hex,
             vector={
-                "bm25": models.Documen(text=record["text"], model=SPARSE_MODEL),
+                "bm25": models.Document(text=record["text"], model=SPARSE_MODEL),
                 "jina-small": models.Document(text=record["text"], model=DENSE_MODEL),
             },
             payload={
@@ -78,6 +82,7 @@ def create_embeddings(documents: list[dict]) -> list[dict]:
 
 
 def ingest_data(points: list[dict]):
+    print("Ingesting data into Qdrant...")
     client.upsert(collection_name=COLLECTION_NAME, points=points)
     print(f"Ingested {len(points)} points into collection '{COLLECTION_NAME}'")
 
