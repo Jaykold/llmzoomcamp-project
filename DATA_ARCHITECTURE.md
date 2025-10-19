@@ -55,34 +55,6 @@ CREATE TABLE feedback (
 );
 ```
 
-#### 4. `ingestion_logs` - Data Ingestion Tracking
-```sql
-CREATE TABLE ingestion_logs (
-    id UUID PRIMARY KEY,
-    collection_name VARCHAR(100),           -- Qdrant collection name
-    documents_count INTEGER,                -- Number of documents ingested
-    ingestion_time_ms INTEGER,              -- Time taken to ingest
-    embedding_model VARCHAR(100),           -- Model used for embeddings
-    sparse_model VARCHAR(100),              -- Model used for sparse vectors
-    status VARCHAR(50),                     -- completed/failed
-    error_message TEXT,                     -- Error details if failed
-    created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-#### 5. `retrieval_metrics` - Search Performance
-```sql
-CREATE TABLE retrieval_metrics (
-    id UUID PRIMARY KEY,
-    question_id UUID,                       -- Links to question
-    query_vector_time_ms INTEGER,           -- Time to vectorize query
-    top_k INTEGER,                          -- Number of results requested
-    similarity_threshold FLOAT,             -- Minimum similarity score
-    retrieved_doc_scores JSONB,             -- Similarity scores of results
-    created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
 ### Analytics Views
 
 #### `question_answer_summary` - Complete Q&A with feedback
@@ -153,9 +125,6 @@ docker-compose up postgres qdrant -d
 After ingestion, you can query PostgreSQL to see system health:
 
 ```sql
--- Check ingestion status
-SELECT * FROM ingestion_logs ORDER BY created_at DESC;
-
 -- View system performance
 SELECT * FROM system_performance;
 

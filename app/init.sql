@@ -34,38 +34,12 @@ CREATE TABLE IF NOT EXISTS feedback (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table to track data ingestion and system metrics
-CREATE TABLE IF NOT EXISTS ingestion_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    collection_name VARCHAR(100) NOT NULL,
-    documents_count INTEGER NOT NULL,
-    ingestion_time_ms INTEGER,
-    embedding_model VARCHAR(100),
-    sparse_model VARCHAR(100),
-    status VARCHAR(50) DEFAULT 'completed',
-    error_message TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table to store retrieval performance metrics
-CREATE TABLE IF NOT EXISTS retrieval_metrics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    question_id UUID REFERENCES questions(id),
-    query_vector_time_ms INTEGER,
-    top_k INTEGER DEFAULT 5,
-    similarity_threshold FLOAT,
-    retrieved_doc_scores JSONB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_questions_created_at ON questions(created_at);
 CREATE INDEX IF NOT EXISTS idx_questions_session_id ON questions(session_id);
 CREATE INDEX IF NOT EXISTS idx_answers_question_id ON answers(question_id);
 CREATE INDEX IF NOT EXISTS idx_answers_created_at ON answers(created_at);
 CREATE INDEX IF NOT EXISTS idx_feedback_answer_id ON feedback(answer_id);
-CREATE INDEX IF NOT EXISTS idx_ingestion_logs_collection ON ingestion_logs(collection_name);
-CREATE INDEX IF NOT EXISTS idx_retrieval_metrics_question_id ON retrieval_metrics(question_id);
 
 -- Create views for analytics
 CREATE OR REPLACE VIEW question_answer_summary AS
@@ -98,10 +72,3 @@ SELECT
 FROM answers
 GROUP BY DATE(created_at)
 ORDER BY date DESC;
-
--- Insert some sample data for testing
-INSERT INTO questions (question_text, user_id, session_id) VALUES 
-    ('What is the capital of France?', 'test_user', 'session_001'),
-    ('How does machine learning work?', 'test_user', 'session_001'),
-    ('What is retrieval augmented generation?', 'demo_user', 'session_002')
-ON CONFLICT DO NOTHING;
