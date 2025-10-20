@@ -95,7 +95,16 @@ uv sync
 source .venv/bin/activate
 ```
 
-### 2. Run Data Ingestion
+### 2. Start Qdrant Service First
+```bash
+# Start only Qdrant (required for ingestion)
+docker-compose up -d qdrant
+
+# Verify Qdrant is running and healthy
+docker-compose ps qdrant
+```
+
+### 3. Run Data Ingestion
 ```bash
 # Run ingestion script (modify records count as needed)
 python ingest.py
@@ -103,7 +112,7 @@ python ingest.py
 
 **Note**: You can modify the number of records to ingest by editing the parameters in [`ingest.py`](ingest.py).
 
-### 3. Update Collection Name
+### 4. Update Collection Name
 After ingestion, update the collection name in [`app/llm_assistant.py`](app/llm_assistant.py):
 
 ```python
@@ -111,9 +120,9 @@ After ingestion, update the collection name in [`app/llm_assistant.py`](app/llm_
 COLLECTION_NAME = "your_collection_name_here"
 ```
 
-### 4. Start the Application
+### 5. Start All Services
 ```bash
-# Start all services
+# Now start all services including the updated collection
 docker-compose up -d
 ```
 
