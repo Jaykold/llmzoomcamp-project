@@ -96,7 +96,7 @@ source .venv/bin/activate
 ```
 
 ### 2. Start Qdrant Service First
-**Important**: Ensure you have completed Step 2 (environment variables setup) before proceeding.
+**Important**: Ensure you have completed Step 2 (environment variables setup) in **Quick Start** before proceeding.
 
 ```bash
 # Start only Qdrant (required for ingestion)
