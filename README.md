@@ -66,8 +66,6 @@ LOG_LEVEL=INFO
 ```
 
 ### 3. Start the Application
-**Important**: Ensure you have completed Step 2 (environment variables setup) before proceeding.
-
 ```bash
 # Start all services in detached mode
 docker-compose up -d
@@ -98,6 +96,8 @@ source .venv/bin/activate
 ```
 
 ### 2. Start Qdrant Service First
+**Important**: Ensure you have completed Step 2 (environment variables setup) before proceeding.
+
 ```bash
 # Start only Qdrant (required for ingestion)
 docker-compose up -d qdrant
