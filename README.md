@@ -66,6 +66,8 @@ LOG_LEVEL=INFO
 ```
 
 ### 3. Start the Application
+**Important**: Ensure you have completed Step 2 (environment variables setup) before proceeding.
+
 ```bash
 # Start all services in detached mode
 docker-compose up -d
