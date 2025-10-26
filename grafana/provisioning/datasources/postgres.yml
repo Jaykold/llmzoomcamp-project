@@ -7,13 +7,13 @@ datasources:
     orgId: 1
     uid: postgres
     url: postgres:5432
-    database: llm_project
     user: postgres
     secureJsonData:
       password: postgres
     jsonData:
+      database: llm_project
       sslmode: disable
-      postgresVersion: 1200
+      postgresVersion: 1400
       timescaledb: false
     isDefault: true
     version: 1
